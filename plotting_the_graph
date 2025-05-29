@@ -1,0 +1,178 @@
+# Load required packages
+library(ggplot2)
+library(tidyverse)
+install.packages("FactoMineR")
+library(FactoMineR)
+install.packages("factoextra")http://127.0.0.1:18797/graphics/plot_zoom_png?width=1181&height=863
+library(factoextra)
+
+# Read CSV
+expr_data <- read.csv("NRF1_Protein_counts.csv", row.names = 1)
+
+# Check structure
+head(expr_data)
+
+expr_t <- t(expr_data)  # transpose so samples are rows
+
+pca_res <- prcomp(expr_t, scale. = TRUE)
+
+fviz_pca_ind(pca_res,
+             geom.ind = "point",
+             pointshape = 21,
+             fill.ind = "lightblue",
+             label = "all",         # <- show sample labels
+             repel = TRUE,          # <- avoids label overlap
+             title = "PCA of RNA Expression")
+
+
+# Add sample group info if available
+sample_info <- data.frame(Sample = rownames(expr_t),
+                          Group = c(rep("Group1", 8), rep("Group2", 8), rep("Group3", 8)))  # modify as needed
+
+fviz_pca_ind(pca_res,
+             geom.ind = "point",
+             col.ind = sample_info$Group,  # color by group
+             palette = "jco",
+             addEllipses = TRUE,
+             legend.title = "Group",
+             repel = TRUE,
+             title = "PCA of RNA Expression by Group")
+
+
+
+install.packages("ggplot2")
+install.packages("readr")
+install.packages("dplyr")
+
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(ggrepel)
+
+
+# Read the data (set row.names = 1 to use gene names as rownames)
+
+expr_raw <- read.csv("NRF1_Protein_counts.csv", row.names = 1, check.names = FALSE)
+
+head(expr_raw)[, 1:5]  # check the first few rows and columns
+
+# Check structure
+head(expr_raw)
+expr_t <- t(expr_raw)
+
+# Calculate variance for each gene (column of expr_t)
+gene_variances <- apply(expr_t, 2, var)
+
+# Filter out genes with zero variance to avoid PCA errors
+expr_t_filtered <- expr_t[, gene_variances > 0]
+
+# Run PCA on filtered data (scale = TRUE for standardized variables)
+pca_res <- prcomp(expr_t_filtered, scale. = TRUE)
+
+# Prepare PCA dataframe for plotting
+pca_df <- as.data.frame(pca_res$x)
+pca_df$Sample <- rownames(pca_df)
+
+# Define groups based on your sample names
+pca_df$Group <- NA
+pca_df$Group[grepl("^C\\d+$", pca_df$Sample, ignore.case = TRUE)] <- "Control"
+pca_df$Group[grepl("^C_H\\d+$", pca_df$Sample)] <- "Control + H2O2"
+pca_df$Group[grepl("^N\\d+$", pca_df$Sample)] <- "NRF1"
+pca_df$Group[grepl("^N_H\\d+$", pca_df$Sample)] <- "NRF1 + H2O2"
+
+# If any samples don’t match above, assign "Other"
+pca_df$Group[is.na(pca_df$Group)] <- "Other"
+
+# Check group assignment (optional)
+table(pca_df$Group)
+
+# Define colors for the four groups (you can choose other colors if you want)
+group_colors <- c(
+  "Control" = "#1b9e77",        # teal green
+  "Control + H2O2" = "#d95f02", # orange
+  "NRF1" = "#7570b3",           # purple
+  "NRF1 + H2O2" = "#e7298a",    # pink
+  "Other" = "gray50"
+)
+
+# Calculate variance explained for axis labels correctly
+var_explained <- summary(pca_res)$importance[2, 1:2] * 100
+
+# Plot PCA with ggplot2
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Group)) +
+  geom_point(size = 4) +
+  geom_text_repel(aes(label = Sample), size = 3, max.overlaps = 10) +
+  scale_color_manual(values = group_colors) +
+  xlab(paste0("PC1 (", round(var_explained[1], 1), "% variance)")) +
+  ylab(paste0("PC2 (", round(var_explained[2], 1), "% variance)")) +
+  ggtitle("PCA of Protein Abundance") +
+  theme_minimal() +
+  theme(
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  )
+
+
+
+# Read the data (set row.names = 1 to use gene names as rownames)
+
+expr_raw <- read.csv("NRF1_RNA counts.csv", row.names = 1, check.names = FALSE)
+
+head(expr_raw)[, 1:5]  # check the first few rows and columns
+
+# Check structure
+head(expr_raw)
+expr_t <- t(expr_raw)
+
+# Calculate variance for each gene (column of expr_t)
+gene_variances <- apply(expr_t, 2, var)
+
+# Filter out genes with zero variance to avoid PCA errors
+expr_t_filtered <- expr_t[, gene_variances > 0]
+
+# Run PCA on filtered data (scale = TRUE for standardized variables)
+pca_res <- prcomp(expr_t_filtered, scale. = TRUE)
+
+# Prepare PCA dataframe for plotting
+pca_df <- as.data.frame(pca_res$x)
+pca_df$Sample <- rownames(pca_df)
+
+# Define groups based on your sample names
+pca_df$Group <- NA
+pca_df$Group[grepl("^C\\d+$", pca_df$Sample, ignore.case = TRUE)] <- "Control"
+pca_df$Group[grepl("^C_H\\d+$", pca_df$Sample)] <- "Control + H2O2"
+pca_df$Group[grepl("^N\\d+$", pca_df$Sample)] <- "NRF1"
+pca_df$Group[grepl("^N_H\\d+$", pca_df$Sample)] <- "NRF1 + H2O2"
+
+# If any samples don’t match above, assign "Other"
+pca_df$Group[is.na(pca_df$Group)] <- "Other"
+
+# Check group assignment (optional)
+table(pca_df$Group)
+
+# Define colors for the four groups (you can choose other colors if you want)
+group_colors <- c(
+  "Control" = "#1b9e77",        # teal green
+  "Control + H2O2" = "#d95f02", # orange
+  "NRF1" = "#7570b3",           # purple
+  "NRF1 + H2O2" = "#e7298a",    # pink
+  "Other" = "gray50"
+)
+
+# Calculate variance explained for axis labels correctly
+var_explained <- summary(pca_res)$importance[2, 1:2] * 100
+
+# Plot PCA with ggplot2
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Group)) +
+  geom_point(size = 4) +
+  geom_text_repel(aes(label = Sample), size = 3, max.overlaps = 10) +
+  scale_color_manual(values = group_colors) +
+  xlab(paste0("PC1 (", round(var_explained[1], 1), "% variance)")) +
+  ylab(paste0("PC2 (", round(var_explained[2], 1), "% variance)")) +
+  ggtitle("PCA of RNA Expression") +
+  theme_minimal() +
+  theme(
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  )
+
