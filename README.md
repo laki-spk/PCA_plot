@@ -5,6 +5,7 @@ For this the data sheet should looks like below:
 
 > # Check structure
 > head(expr_raw)
+
                C2        C3      C_H1     C_H2      C_H3        N1        N2        N3      N_H1      N_H2      N_H3
 A1bg     0.000000  0.000000  0.000000  0.00000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
 A1cf     0.038348  0.000000  0.000000  0.00000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
@@ -15,3 +16,7 @@ A4galt  15.397491 12.866089 11.208944 10.15715  9.835147 11.571400 10.199619 10.
 
 
 Where samples are in C1.....N_H3 and gene list is in the first column
+
+
+And if using protein abundance data we should normalized it to the total protein count of the sample first.
+File should be saved as a csv file
